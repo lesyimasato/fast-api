@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from .models import Student, StudentCreate
 
 students_db = [
