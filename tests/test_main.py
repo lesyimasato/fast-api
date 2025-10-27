@@ -3,6 +3,7 @@ from app.main import app
 
 client = TestClient(app)
 
+
 def test_get_all_students_success():
     response = client.get("/students")
     assert response.status_code == 200
@@ -11,11 +12,13 @@ def test_get_all_students_success():
     assert len(data) > 0
     assert "name" in data[0]
 
+
 def test_get_student_by_id_success():
     response = client.get("/students/1")
     data = response.json()
     assert response.status_code == 200
     assert data["id"] == 1
+
 
 def test_create_student_success():
     response = client.post(
@@ -29,10 +32,12 @@ def test_create_student_success():
     assert response.status_code == 201
     assert data["name"] == "Renato Hioji Okamoto Odake"
 
+
 def test_get_student_by_id_not_found():
     response = client.get("/students/999")
     assert response.status_code == 404
     assert response.json() == {"detail": "Student not found"}
+
 
 def test_create_student_duplicate_email():
     client.post(
