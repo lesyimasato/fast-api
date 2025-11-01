@@ -1,6 +1,7 @@
 fastapi[standard]
-uvicorn
 pytest
 black
 flake8
+uvicorn
 requests
+pytest-mock

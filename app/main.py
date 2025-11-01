@@ -1,20 +1,40 @@
-from fastapi import FastAPI, status
-from .crud import get_all_students, get_student_by_id, create_student_record
-from .models import Student, StudentCreate
+from fastapi import FastAPI, HTTPException
+import requests
 
-app = FastAPI(title="Student API")
+app = FastAPI()
 
-
-@app.get("/students", response_model=list[Student])
-def list_students():
-    return get_all_students()
+BASE_URL = "https://dummyjson.com"
 
 
-@app.get("/students/{student_id}", response_model=Student)
-def search_student(student_id: int):
-    return get_student_by_id(student_id)
+@app.get("/")
+def root():
+    return {"message": "Mocking and Fixture's testing endpoints"}
 
 
-@app.post("/students", response_model=Student, status_code=status.HTTP_201_CREATED)
-def create_student(student: StudentCreate):
-    return create_student_record(student)
+@app.get("/recipes")
+def list_recipes(limit: int = 25):
+    response = requests.get(f"{BASE_URL}/recipes")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Error in external API")
+    recipes = response.json()
+    return recipes[:limit]
+
+
+@app.get("/recipes/{recipe_id}")
+def search_recipe(recipe_id: int):
+    response = requests.get(f"{BASE_URL}/recipes/{recipe_id}")
+    if response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Error in external API")
+    return response.json()
+
+
+@app.post("/recipes")
+def create_recipe(recipe: dict):
+    response = requests.post(f"{BASE_URL}/recipes/add", json=recipe)
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code, detail="Failed to create recipe"
+        )
+    return response.json()
