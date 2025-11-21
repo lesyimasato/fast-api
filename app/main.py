@@ -1,20 +1,17 @@
-from fastapi import FastAPI, status
-from .crud import get_all_students, get_student_by_id, create_student_record
-from .models import Student, StudentCreate
+from fastapi import FastAPI, HTTPException, status
 
 app = FastAPI(title="Student API")
 
+database = {
+    1: {"id": 1, "name": "Letícia Sayuri Imasato"},
+    2: {"id": 2, "name": "Renato Hioji Okamoto Odake"},
+}
 
-@app.get("/students", response_model=list[Student])
-def list_students():
-    return get_all_students()
 
-
-@app.get("/students/{student_id}", response_model=Student)
+@app.get("/students/{student_id}")
 def search_student(student_id: int):
-    return get_student_by_id(student_id)
-
-
-@app.post("/students", response_model=Student, status_code=status.HTTP_201_CREATED)
-def create_student(student: StudentCreate):
-    return create_student_record(student)
+    if student_id in database:
+        return database[student_id]
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND, detail="Student not found"
+    )
